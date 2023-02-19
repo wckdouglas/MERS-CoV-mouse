@@ -1,0 +1,38 @@
+sample_id,Infection,Antibody,time_point,species
+W1_24,wt,N/A,5d,Human
+W2_24,wt,N/A,5d,Human
+W3_24,wt,N/A,5d,Human
+D1_24,Mutant,N/A,5d,Human
+D2_24,Mutant,N/A,5d,Human
+D3_24,Mutant,N/A,5d,Human
+W1_48,wt,N/A,5d,Human
+W2_48,wt,N/A,5d,Human
+W3_48,wt,N/A,5d,Human
+D1_48,Mutant,N/A,5d,Human
+D2_48,Mutant,N/A,5d,Human
+D3_48,Mutant,N/A,5d,Human
+WT_2dpi_1,MERS-CoV wt,N/A,2d,Mouse
+WT_2dpi_2,MERS-CoV wt,N/A,2d,Mouse
+WT_2dpi_3,MERS-CoV wt,N/A,2d,Mouse
+WT_2dpi_4,MERS-CoV wt,N/A,2d,Mouse
+D8b_2dpi_1,MERS-CoV mutant,N/A,2d,Mouse
+D8b_2dpi_2,MERS-CoV mutant,N/A,2d,Mouse
+D8b_2dpi_3,MERS-CoV mutant,N/A,2d,Mouse
+D8b_2dpi_4,MERS-CoV mutant,N/A,2d,Mouse
+WT_5dpi_1,MERS-CoV wt,N/A,5d,Mouse
+WT_5dpi_2,MERS-CoV wt,N/A,5d,Mouse
+WT_5dpi_3,MERS-CoV wt,N/A,5d,Mouse
+WT_5dpi_4,MERS-CoV wt,N/A,5d,Mouse
+D8b_5dpi_1,MERS-CoV mutant,N/A,5d,Mouse
+D8b_5dpi_2,MERS-CoV mutant,N/A,5d,Mouse
+D8b_5dpi_3,MERS-CoV mutant,N/A,5d,Mouse
+D8b_5dpi_4,MERS-CoV mutant,N/A,5d,Mouse
+Ctl_1,N/A,control,5d,Mouse
+Ctl_2,N/A,control,5d,Mouse
+Ctl_3,N/A,control,5d,Mouse
+CCR2_1,N/A,α-CCR2,5d,Mouse
+CCR2_2,N/A,α-CCR2,5d,Mouse
+CCR2_3,N/A,α-CCR2,5d,Mouse
+CCR2_4,N/A,α-CCR2,5d,Mouse
+CCR2_5,N/A,α-CCR2,5d,Mouse
+
