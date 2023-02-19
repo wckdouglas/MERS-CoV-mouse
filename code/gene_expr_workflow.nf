@@ -60,7 +60,7 @@ process run_kallisto {
     publishDir "${params.PROJECT_PATH}/result/${id}", pattern: "kallisto", mode: "copy"
 
     output:
-        path("kallisto")
+        tuple val(id), path("kallisto/pseudoalignments.bam")
 
     script:
         """
@@ -70,6 +70,24 @@ process run_kallisto {
             -i $INDEX_PATH \
             -t ${task.cpus} \
             -o kallisto ${r1} ${r2}
+        """
+}
+
+process index_kallisto {
+    conda params.CONDA_ENV
+    cpus params.N_CPU
+
+    input:
+        tuple val(id), path(bam)
+
+    publishDir "${params.PROJECT_PATH}/result/${id}/kallisto", pattern: "*i", mode: "copy"
+    
+    output:
+        path("pseudoalignments.bam.csi")
+    
+    script:
+        """
+        samtools index -c -@ ${task.cpus} ${bam}
         """
 }
 
@@ -101,26 +119,6 @@ process run_hisat2 {
         """    
 }
 
-process feature_count {
-    conda params.CONDA_ENV
-
-    input:
-        tuple val(id), path(bam)
-    
-    publishDir "${params.PROJECT_PATH}/result/${id}/counts", pattern: "*", mode: "copy"
-
-    output:
-        tuple val(id), path("count.tsv")
-    
-    script:
-        """
-        featureCounts -p -O -T n \
-        -a ${GENE_GTF} \
-        -o count.tsv ${bam}
-        """
-
-
-}
 
 workflow {
     design_file = Channel.fromPath(METADATA_TABLE) 
@@ -138,7 +136,7 @@ workflow {
     rRNA_id_list = map_rRNA(filtered_viral_fq.combine(rrna_channel))
     filtered_rRNA_fq = filter_rRNA(rRNA_id_list.map {row -> [row[0], row[1], row[2], row[3], row[4]]})
     kallisto_ch = run_kallisto(filtered_rRNA_fq) 
+    kallisto_index_ch = index_kallisto(kallisto_ch)
     hisat2_ch = run_hisat2(filtered_rRNA_fq)
-    count_ch = feature_count(hisat2_ch.map {row -> [row[0], row[1]]})
 }
 
