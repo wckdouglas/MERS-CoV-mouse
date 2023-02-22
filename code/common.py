@@ -3,15 +3,30 @@ from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
 from typing import Tuple, Optional, Dict
-
+import logging
 import pandas as pd
+
+logging.basicConfig(level=logging.INFO)
+
+LOG = logging.getLogger(__file__)
 
 DATA_PATH = Path(__file__).resolve().parents[1] / "data"
 RESULT_PATH = Path(__file__).resolve().parents[1] / "result"
 REFERENCE_PATH = Path(__file__).resolve().parents[1] / "ref"
 FIGURE_PATH = Path(__file__).resolve().parents[1] / "figures"
 
-ISG_GENES = ["Isg15", "Isg20", "lfit1", "lfit2", "lfit3", "Bst2", "Oas3", "Oasl1", "Mx1", "Rsad2"]
+ISG_GENES = [
+    "Isg15",
+    "Isg20",
+    "lfit1",
+    "lfit2",
+    "lfit3",
+    "Bst2",
+    "Oas3",
+    "Oasl1",
+    "Mx1",
+    "Rsad2",
+]
 
 
 @dataclass(frozen=True)
@@ -88,27 +103,28 @@ def get_gene_table():
     )
 
 
-def genic_express(gene_list):
+def genic_express(gene_list, allow_missing=False):
     gene_df = get_expression_data()
-    assert set(gene_list).issubset(set(gene_df["gene_name"]))
+    if not allow_missing:
+        assert set(gene_list).issubset(set(gene_df["gene_name"]))
     return gene_df.pipe(lambda d: d[d["gene_name"].isin(gene_list)])
 
 
-def comparison_genic_expression(gene_list, comparison):
+def comparison_genic_expression(gene_list, comparison, allow_missing=False):
     if comparison not in COMPARISONS.keys():
         raise ValueError(f"comparison must be one of {COMPARISONS.keys()}")
-    gene_data = genic_express(gene_list)
+    gene_data = genic_express(gene_list, allow_missing=allow_missing)
     return gene_data.query(COMPARISONS[comparison].filter)
 
 
 def read_meta() -> Dict[str, Sample]:
     sample_data = {}
-    with open(DATA_PATH  /  "2023-01-27_metadata.csv") as metadata:
+    with open(DATA_PATH / "2023-01-27_metadata.csv") as metadata:
         for row in csv.DictReader(metadata):
-            sample_data[row['sample_id']] = Sample(
-                sample_id=row['sample_id'],
-                infection=row['Infection'],
-                antibody=row['Antibody'],
-                time_point=row['time_point'],
+            sample_data[row["sample_id"]] = Sample(
+                sample_id=row["sample_id"],
+                infection=row["Infection"],
+                antibody=row["Antibody"],
+                time_point=row["time_point"],
             )
     return sample_data

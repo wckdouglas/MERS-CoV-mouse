@@ -1,11 +1,17 @@
 from enum import Enum
 from pathlib import Path
-from typing import Union
+from pydantic.dataclasses import dataclass
+from typing import Union, List
 import matplotlib.pyplot as plt
 import numpy as np
 import pandera as pa
 import seaborn as sns
 from pandera.typing import DataFrame, Series
+import logging
+
+logging.basicConfig(level=logging.INFO)
+
+LOG = logging.getLogger(__file__)
 
 plt.rc("xtick", labelsize=15)
 plt.rc("ytick", labelsize=15)
@@ -32,12 +38,12 @@ class DESeqDataFrame(pa.SchemaModel):
 @pa.check_types
 def get_significant_protein_gene(
     df: DataFrame[DESeqDataFrame],
-    lfc_threshold: Union[int,float] =LFC_THRESHOLD,
-    padj_threshold: float =PADJ_THRESHOLD,
+    lfc_threshold: Union[int, float] = LFC_THRESHOLD,
+    padj_threshold: float = PADJ_THRESHOLD,
 ) -> DataFrame[DESeqDataFrame]:
     """
     Picking out significant protein genes
-    
+
     :param df: DESeq2 result dataframe
     :param lfc_threshold: threshold to cutoff absolute log fold change values
     :param padj_threshold: threshold to cutoff adjusted p value
@@ -97,3 +103,23 @@ def label_significant(row) -> str:
         return Significant.Significant.name
     else:
         return Significant.No_change.name
+
+
+@dataclass
+class Pathway:
+    name: str
+    description_url: str
+    genes: list[str]
+
+
+def index_gmt_pathways(gmt_file):
+    pathway_index: Dict[str, Pathway] = dict()
+    with Path(gmt_file).open("r") as f:
+        for pathway_count, line in enumerate(f):
+            fields = line.strip().split("\t")
+            pathway = Pathway(
+                name=fields[0], description_url=fields[1], genes=fields[2:]
+            )
+            pathway_index[pathway.name] = pathway
+    LOG.info("Indexed %i pathways", pathway_count + 1)
+    return pathway_index
