@@ -6,9 +6,12 @@ from typing import List, Union
 import matplotlib.pyplot as plt
 import numpy as np
 import pandera as pa
+import pandas as pd
 import seaborn as sns
+from common import COMPARISONS, comparison_genic_expression, read_meta
 from pandera.typing import DataFrame, Series
 from pydantic.dataclasses import dataclass
+from ridgeplot.colors import ColorEncoder, ColorPalette
 
 logging.basicConfig(level=logging.INFO)
 
@@ -124,3 +127,70 @@ def index_gmt_pathways(gmt_file):
             pathway_index[pathway.name] = pathway
     LOG.info("Indexed %i pathways", pathway_count + 1)
     return pathway_index
+
+
+def plot_heatmap(
+    de_table,
+    comparison,
+    gene_list=None,
+    figsize=(10, 20),
+    sample_coloring="infection",
+    diff_expr_gene_only=False,
+    zscore_normalize=False,
+):
+    sample_data = read_meta()
+    color_palette = ColorPalette["okabeito"]
+    if diff_expr_gene_only:
+        gene_list_diff = (
+            de_table.pipe(lambda d: d[d["label"] == COMPARISONS[comparison].de_label])
+            .pipe(
+                lambda d: get_significant_protein_gene(
+                    d, lfc_threshold=1, padj_threshold=0.05
+                )
+            )["gene_name"]
+            .tolist()
+        )
+
+        if gene_list is not None:
+            gene_list = set(gene_list_diff).intersection(gene_list)
+        else:
+            gene_list = gene_list_diff
+
+    norm_df = comparison_genic_expression(gene_list, comparison, allow_missing=True)
+    plot_mat = norm_df.pipe(
+        pd.pivot, index="gene_name", columns="sample_id", values="value"
+    )
+
+    labels = [sample_data[col].__dict__[sample_coloring] for col in plot_mat.columns]
+    color_encoder = ColorEncoder()
+    color_encoder.fit(labels, color_palette)
+
+    p = sns.clustermap(
+        np.log10(plot_mat + 1),
+        col_colors=color_encoder.transform(labels),
+        figsize=figsize,
+        cbar_kws={
+            "label": "$log_{10}$ normalized expression",
+        },
+        cmap="viridis",
+        col_cluster=False,
+        colors_ratio=0.02,
+        cbar_pos=(1, 0.2, 0.1, 0.6),
+        z_score=0 if zscore_normalize else None,
+    )
+    color_encoder.show_legend(
+        ax=p.ax_heatmap, bbox_to_anchor=(1.05, 1.1), frameon=False, fontsize=15
+    )
+    yt = p.ax_heatmap.set_yticks(np.arange(plot_mat.shape[0]) + 0.5)
+    row_order = p.dendrogram_row.reordered_ind
+    yt = p.ax_heatmap.set_yticklabels(plot_mat.index.values[row_order])
+    # p.ax_heatmap.yaxis.set_visible(False)
+    p.ax_heatmap.set_ylabel("")
+    p.ax_heatmap.set_xlabel("")
+
+    if zscore_normalize:
+        cbar_label = "Z-score, $log_{10}$ normalized expression"
+    else:
+        cbar_label = "$log_{10}$ normalized expression"
+    p.ax_cbar.set_ylabel(cbar_label, va="bottom", rotation=270, fontsize=15)
+    return p
