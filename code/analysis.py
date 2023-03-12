@@ -5,13 +5,14 @@ from typing import List, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
-import pandera as pa
 import pandas as pd
+import pandera as pa
 import seaborn as sns
-from common import COMPARISONS, comparison_genic_expression, read_meta
 from pandera.typing import DataFrame, Series
 from pydantic.dataclasses import dataclass
 from ridgeplot.colors import ColorEncoder, ColorPalette
+
+from common import COMPARISONS, comparison_genic_expression, read_meta
 
 logging.basicConfig(level=logging.INFO)
 
