@@ -1,9 +1,10 @@
 import csv
+import logging
 from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
-from typing import Tuple, Optional, Dict
-import logging
+from typing import Dict, Optional, Tuple
+
 import pandas as pd
 
 logging.basicConfig(level=logging.INFO)

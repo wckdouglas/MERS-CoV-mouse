@@ -1,13 +1,14 @@
+import logging
 from enum import Enum
 from pathlib import Path
-from pydantic.dataclasses import dataclass
-from typing import Union, List
+from typing import List, Union
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandera as pa
 import seaborn as sns
 from pandera.typing import DataFrame, Series
-import logging
+from pydantic.dataclasses import dataclass
 
 logging.basicConfig(level=logging.INFO)
 

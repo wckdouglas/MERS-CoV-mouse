@@ -3,7 +3,7 @@ import logging
 import pandas as pd
 from diffexpr.py_deseq import py_DESeq2
 
-from common import RESULT_PATH, get_sample_table, get_tx2gene, COMPARISONS
+from common import COMPARISONS, RESULT_PATH, get_sample_table, get_tx2gene
 
 logging.basicConfig(level=logging.INFO)
 LOG = logging.getLogger(__name__)
@@ -33,13 +33,19 @@ def run_deseq(h5_dict, subsampled_metadata, formula, contrast):
 
 def make_deseq(h5_dict, sample_table, contrast, day):
     if len(contrast) != 3:
-        raise ValueError("contrast must be a 3 value tuple: [column name, factor 1, factor 2]")
+        raise ValueError(
+            "contrast must be a 3 value tuple: [column name, factor 1, factor 2]"
+        )
 
     column = contrast[0]
     factors = contrast[1:]
-    subsampled_metadata = sample_table.pipe(lambda d: d[(d[column].isin(factors)) & (d["time_point"] == day)]).pipe(
-        lambda d: d[~d["sample_id"].isin(REMOVE_SAMPLES)]
-    ).filter(["sample_id", column])
+    subsampled_metadata = (
+        sample_table.pipe(
+            lambda d: d[(d[column].isin(factors)) & (d["time_point"] == day)]
+        )
+        .pipe(lambda d: d[~d["sample_id"].isin(REMOVE_SAMPLES)])
+        .filter(["sample_id", column])
+    )
     return run_deseq(h5_dict, subsampled_metadata, f"~ {column}", contrast)
 
 
@@ -59,18 +65,20 @@ if __name__ == "__main__":
     de_df_list, norm_count_df_list = [], []
     for comparison_item in COMPARISONS.values():
         comparison = list(comparison_item.comparison)
-        LOG.info(f"Running deseq2 for comparison {comparison}" )
+        LOG.info(f"Running deseq2 for comparison {comparison}")
         label = "{}: {} vs {} at {}".format(*comparison[0], comparison[1])
-        de_df, norm_count_df = make_deseq(h5_dict, sample_table, comparison[0], comparison[1])
+        de_df, norm_count_df = make_deseq(
+            h5_dict, sample_table, comparison[0], comparison[1]
+        )
         de_df_list.append(de_df.assign(label=label))
         norm_count_df_list.append(norm_count_df)
 
     de_df = pd.concat(de_df_list).reset_index()
     de_table_name = RESULT_PATH / "de_result.csv"
     de_df.to_csv(de_table_name, index=False)
-    LOG.info("Written %s" %de_table_name)
+    LOG.info("Written %s" % de_table_name)
 
     norm_count_df = pd.concat(norm_count_df_list).reset_index()
     norm_count_table_name = RESULT_PATH / "norm_count.csv"
     norm_count_df.to_csv(norm_count_table_name, index=False)
-    LOG.info("Written %s" %norm_count_table_name)
+    LOG.info("Written %s" % norm_count_table_name)
