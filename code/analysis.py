@@ -93,8 +93,8 @@ def plot_ma(ax, protein_genes_df: DataFrame[DESeqDataFrame]):
         )
     ax.set_title(size=15, label=sig_df["label"].tolist()[0])
     ax.hlines(y=0, xmin=-1, xmax=22, color="red")
-    ax.set_xlabel("Expression level (log2 base mean)")
-    ax.set_ylabel("Fold change (log2)")
+    ax.set_xlabel("Expression level (log2 base mean)", fontsize=15)
+    ax.set_ylabel("Fold change (log2)", fontsize=15)
     sns.despine()
 
 
