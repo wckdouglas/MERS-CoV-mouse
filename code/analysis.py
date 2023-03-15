@@ -195,3 +195,22 @@ def plot_heatmap(
         cbar_label = "$log_{10}$ normalized expression"
     p.ax_cbar.set_ylabel(cbar_label, va="bottom", rotation=270, fontsize=15)
     return p
+
+MA_PLOT_OFFSETS = {
+    # upregulaed
+    "Rhcg": (1,12),
+    "Srd5a2": (-2, 10),
+    "Ucp1": (1, 2),
+    "Prr9": (-3,9),
+    "Ppp1r27": (2, 10),
+    "Ifnb1": (4, 3),
+    "Rsc1a1": (2,4),
+    # downregulated
+    "Gabrb3": (-4, -8),
+    "Lalba": (-1, -3),
+    "Klra10": (0, -10),
+    "Apol7c": (-3, -7),
+    "Slc7a10": (2, -5),
+    "Cd209a": (0.5,-3),
+    "Ubd": (3, -2),
+}
