@@ -27,6 +27,7 @@ process map_to_db {
 }
 
 process filter_aligned {
+    // this is a tool from https://github.com/wckdouglas/fq-filter-reads
     conda params.CONDA_ENV
     cpus params.N_CPU
     
