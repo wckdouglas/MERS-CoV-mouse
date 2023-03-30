@@ -1,5 +1,6 @@
 
 process map_to_db {
+    // filter-clipped is: https://github.com/wckdouglas/filter-clipped
     conda params.CONDA_ENV
     cpus params.N_CPU
     
